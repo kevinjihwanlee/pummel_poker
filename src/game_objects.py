@@ -37,8 +37,6 @@ class Card(object):
 	def __repr__(self):
 		# TODO more human readable in future?
 		return f"{self.rank} of {self.suit}"
-	
-	# TODO add the ability to compare to a number as well
 
 	def __eq__(self, obj):
 		return ((isinstance(obj, Card) and self.rank == obj.rank) or
@@ -60,5 +58,9 @@ class Card(object):
 	
 	def __ge__(self, obj):
 		return self == obj or self > obj
+	
+	def is_same_suit(self, suit):
+		# TODO enforce contract of suit options?
+		return self.suit == suit
 
 	

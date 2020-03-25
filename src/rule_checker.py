@@ -24,7 +24,7 @@ class RuleChecker(object):
 		if is_fh:
 			pass
 
-		is_fl, high = self.is_flush(both)
+		is_fl, high = self.is_flush(hand, board)
 		if is_fl:
 			pass
 		
@@ -45,17 +45,24 @@ class RuleChecker(object):
 		if is_p:
 			pass
 
-
-
-	def is_flush(self, hand):
+	def is_flush(self, hand, board):
+		both = hand + board
 		suit_count = {}
-		for card in hand:
+		for card in both:
 			curr_suit = card.suit
 			suit_count[curr_suit] = suit_count[curr_suit] + 1 if curr_suit in suit_count else 1
-
-		# TODO just calculate the high card here
-
-		return (any(count >= 5 for count in suit_count.values()), max(suit_count.items(), key=operator.itemgetter(1))[0])
+		flush_suit = max(suit_count.items(), key=operator.itemgetter(1))[0]
+		both.sort(reverse=True)
+		high_card = None
+		for card in both:
+			if card.is_same_suit(flush_suit):
+				if card is hand[0]:
+					high_card = hand[0]
+					break
+				elif card is hand[1]:
+					high_card = hand[1]
+					break
+		return (any(count >= 5 for count in suit_count.values()), high_card)
 
 	def is_straight(self, hand):
 		end = len(hand)
