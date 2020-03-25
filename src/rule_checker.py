@@ -64,31 +64,34 @@ class RuleChecker(object):
 					break
 		return (any(count >= 5 for count in suit_count.values()), high_card)
 
-	def is_straight(self, hand):
-		end = len(hand)
+	def is_straight(self, hand, board):
+		both = hand + board
+		both.sort()
 		min_len = 5
-		# edge case for A 2 3 4 5 straight
-		if hand[end - 1] == ace:
-			# if the first card is not a 2 and the second to last card is not a king
-			if hand[0] != 2 and hand[end - 2] != king:
-				return False
-			end = end - 1
-			min_len = 4
+		end = len(both)
+		# edge case for aces
+		if both[end - 1] == ace:
+			# create duplicate ace at the beginning
+			both.insert(0, Card(1, both[end - 1].suit))
+			end = len(both)
 		longest = 1
-		counter = 1 
+		counter = 1
+		high_card = None
 		for i in range(1, end):
-			if hand[i].rank == hand[i - 1].rank + 1:
+			if both[i].rank == both[i - 1].rank + 1:
+				if counter >= min_len:
+					high_card = both[i]
 				counter = counter + 1
 			else:
-				# straight ends here and the high card has to be recorded
+				high_card = both[i - 1]
 				counter = 1
 			longest = max(longest, counter)
-		
-		# TODO calculate where exactly the straight ends (look above)
-
-		return longest >= min_len
+		if longest >= min_len and longest == counter:
+			high_card = both[end - 1]
+		return (longest >= min_len, high_card)
 	
-	def is_straight_flush(self, hand):
-		# TODO this needs to be adjusted according to the tuple returns
-		return self.is_flush(hand) and self.is_straight(hand)
+	def is_straight_flush(self, hand, board):
+		is_s, high_card = self.is_straight(hand, board)
+		is_f, high_card = self.is_flush(hand, board)
+		return (is_f and is_s, high_card)
 
