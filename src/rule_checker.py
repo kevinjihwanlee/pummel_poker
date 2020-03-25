@@ -9,18 +9,15 @@ class RuleChecker(object):
 	# TODO documentation
 	# this needs to return the hand as well as the relevant high card
 	def analyze_hand(self, hand, board):
-		both = hand + board
-		both.sort()
-
-		is_sf, high = self.is_straight_flush(both)
+		is_sf, high = self.is_straight_flush(hand, board)
 		if is_sf:
 			pass
 
-		is_q, high = self.is_quads(both)
+		is_q, high = self.is_quads(hand, board)
 		if is_sf:
 			pass
 
-		is_fh, high = self.is_full_house(both)
+		is_fh, high = self.is_full_house(hand, board)
 		if is_fh:
 			pass
 
@@ -28,22 +25,45 @@ class RuleChecker(object):
 		if is_fl:
 			pass
 		
-		is_str, high = self.is_straight(both)
+		is_str, high = self.is_straight(hand, board)
 		if is_str:
 			pass
 
-		is_trip, high = self.is_trips(both)
+		is_trip, high = self.is_trips(hand, board)
 		if is_trip:
 			pass
 
-		is_twop, high = self.is_two_pair(both)
+		is_twop, high = self.is_two_pair(hand, board)
 		if is_two_p:
 			# TODO ties
 			pass
 
-		is_p, high = self.is_pair(both)
+		is_p, high = self.is_pair(hand, board)
 		if is_p:
 			pass
+
+	def is_straight_flush(self, hand, board):
+		is_s, high_card = self.is_straight(hand, board)
+		is_f, high_card = self.is_flush(hand, board)
+		return (is_f and is_s, high_card)
+	
+	def is_quads(self, hand, board):
+		# Fifth card (highest outside the quads) in the hand + board is the kicker
+		both = hand + board
+		count = {}
+		for card in both:
+			rank = card.rank
+			count[rank] = count[rank] + 1 if rank in count else 1
+		rank, rank_count = max(count.items(), key=operator.itemgetter(1))
+		if rank_count == 4:
+			both.sort(reverse=True)
+			for card in both:
+				if card != rank:
+					high_card = card
+					break
+			return (True, rank, high_card)
+		else:
+			return (False, None, None)
 
 	def is_flush(self, hand, board):
 		both = hand + board
@@ -83,15 +103,11 @@ class RuleChecker(object):
 					high_card = both[i]
 				counter = counter + 1
 			else:
-				high_card = both[i - 1]
+				if counter >= min_len:
+					high_card = both[i - 1]
 				counter = 1
 			longest = max(longest, counter)
 		if longest >= min_len and longest == counter:
 			high_card = both[end - 1]
 		return (longest >= min_len, high_card)
-	
-	def is_straight_flush(self, hand, board):
-		is_s, high_card = self.is_straight(hand, board)
-		is_f, high_card = self.is_flush(hand, board)
-		return (is_f and is_s, high_card)
 
