@@ -86,10 +86,27 @@ class TestRuleCheckerMethods(unittest.TestCase):
 		board = [Card(2, diamonds), Card(10, hearts), Card(5, diamonds), Card(5, hearts)]
 		self.assertTrue(rc.is_two_pair(hand_one, board)[0])
 		self.assertEqual(rc.is_two_pair(hand_one, board)[1], 10)
-		self.assertEqual(rc.is_two_pair(hand_one, board)[2], 5)
+		self.assertEqual(rc.is_two_pair(hand_one, board)[3], 5)
 		self.assertTrue(rc.is_two_pair(hand_two, board)[0])
 		self.assertEqual(rc.is_two_pair(hand_two, board)[1], 6)
-		self.assertEqual(rc.is_two_pair(hand_two, board)[2], 10)
+		self.assertEqual(rc.is_two_pair(hand_two, board)[3], 10)
+
+		# same top pair but different bottom pair
+		hand_one = [Card(14, spades), Card(14, hearts)]
+		hand_two = [Card(13, spades), Card(12, clubs)]
+		board = [Card(13, diamonds), Card(12, hearts), Card(2, diamonds), Card(3, hearts), Card(2, hearts)]
+		self.assertEqual(rc.is_two_pair(hand_one, board)[1], 14)
+		self.assertEqual(rc.is_two_pair(hand_one, board)[3], 13)
+		self.assertEqual(rc.is_two_pair(hand_two, board)[1], 13)
+		self.assertEqual(rc.is_two_pair(hand_two, board)[3], 3)
+
+	
+	def test_pair(self):
+		rc = RuleChecker()
+		hand_one = [Card(2, spades), Card(10, spades)]
+		hand_two = [Card(6, spades), Card(6, clubs)]
+		board = [Card(2, diamonds), Card(5, diamonds), Card(11, hearts)]
+		rc.is_pair(hand_one, board)
 
 
 if __name__ == '__main__':

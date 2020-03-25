@@ -142,12 +142,28 @@ class RuleChecker(object):
 		pairs = filter(lambda x: x[1] == 2, sorted_counts)
 		pairs = list(map(lambda x: x[0], pairs))
 		if len(pairs) >= 2:
-			rank = pairs[0] if pairs[0] > pairs[1] else pairs[1]
+			# TODO ugly...clean it up at some point
+			higher_rank = pairs[0] if pairs[0] > pairs[1] else pairs[1]
+			lower_rank = pairs[1] if pairs[0] > pairs[1] else pairs[0]
 			both.sort(reverse=True)
 			for card in both:
 				if card != pairs[0] and card != pairs[1]:
 					high_card = card
 					break
-			return (True, rank, high_card)
+			return (True, higher_rank, lower_rank, high_card)
 		else:
 			return (False, None, None)
+	
+	def is_pair(self, hand, board):
+		# TODO DRY abstract this out to a generic pair_finder fn
+		both = hand + board
+		count = {}
+		for card in both:
+			rank = card.rank
+			count[rank] = count[rank] + 1 if rank in count else 1
+		sorted_counts = sorted(count.items(), key=operator.itemgetter(1), reverse=True)
+		pairs = filter(lambda x: x[1] == 2, sorted_counts)
+		pairs = list(map(lambda x: x[0], pairs))
+		if len(pairs) >= 1:
+			rank = pairs[0]
+			
