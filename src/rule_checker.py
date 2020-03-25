@@ -4,15 +4,15 @@ from constants import ace, king
 
 class RuleChecker(object):
 	# TODO documentation
-	# this needs to return the hand as well as the relevant high cards
+	# hand, high card, kickers
 	def analyze_hand(self, hand, board):
-		is_sf, high = self.is_straight_flush(hand, board)
+		is_sf, high_card = self.is_straight_flush(hand, board)
 		if is_sf:
-			pass
+			return('Straight flush', None, high_card)
 
-		is_q, high = self.is_quads(hand, board)
-		if is_sf:
-			pass
+		is_q, rank, high_card = self.is_quads(hand, board)
+		if is_q:
+			return('Four of a kind', rank, high_card)
 
 		is_fh, high = self.is_full_house(hand, board)
 		if is_fh:
@@ -60,6 +60,14 @@ class RuleChecker(object):
 					high_card = card
 					break
 			return (True, rank, high_card)
+		else:
+			return (False, None, None)
+
+	def is_full_house(self, hand, board):
+		has_pair, pair_rank, pair_high_cards = self.is_pair(hand, board)
+		has_trips, trips_rank, trips_high_cards = self.is_trips(hand, board)
+		if has_pair and has_trips and pair_rank != trips_rank:
+			return (True, trips_rank, pair_rank)
 		else:
 			return (False, None, None)
 
@@ -133,6 +141,7 @@ class RuleChecker(object):
 		
 	def is_two_pair(self, hand, board):
 		# Highest pair is the winner, in case of tie the fifth card kicker is the winner
+		# TODO DRY abstract this out to a generic pair_finder fn
 		both = hand + board
 		count = {}
 		for card in both:
@@ -166,4 +175,14 @@ class RuleChecker(object):
 		pairs = list(map(lambda x: x[0], pairs))
 		if len(pairs) >= 1:
 			rank = pairs[0]
-			
+			high_cards = []
+			both.sort(reverse=True)
+			for card in both:
+				if card != rank:
+					high_cards.append(card)
+					if len(high_cards) == 3:
+						break
+			return (True, rank, high_cards)
+		else:
+			return (False, None, None)
+

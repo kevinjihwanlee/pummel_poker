@@ -21,6 +21,15 @@ class TestRuleCheckerMethods(unittest.TestCase):
 		self.assertEqual(rc.is_quads(hand_one, board)[1], 2)
 		self.assertEqual(rc.is_quads(hand_one, board)[2], 6)
 		self.assertEqual(rc.is_quads(hand_two, board)[2], 5)
+	
+	def test_full_house(self):
+		rc = RuleChecker()
+		hand_one = [Card(2, spades), Card(6, spades)]
+		hand_two = [Card(2, spades), Card(7, diamonds)]
+		board = [Card(2, diamonds), Card(2, hearts), Card(6, clubs), Card(5, diamonds)]
+		self.assertEqual(rc.is_full_house(hand_one, board)[1], 2)
+		self.assertEqual(rc.is_full_house(hand_one, board)[2], 6)
+		self.assertFalse(rc.is_full_house(hand_two, board)[0])
 
 	def test_flush(self):
 		rc = RuleChecker()
@@ -100,14 +109,14 @@ class TestRuleCheckerMethods(unittest.TestCase):
 		self.assertEqual(rc.is_two_pair(hand_two, board)[1], 13)
 		self.assertEqual(rc.is_two_pair(hand_two, board)[3], 3)
 
-	
 	def test_pair(self):
 		rc = RuleChecker()
 		hand_one = [Card(2, spades), Card(10, spades)]
-		hand_two = [Card(6, spades), Card(6, clubs)]
+		hand_two = [Card(6, spades), Card(11, clubs)]
 		board = [Card(2, diamonds), Card(5, diamonds), Card(11, hearts)]
-		rc.is_pair(hand_one, board)
-
+		self.assertEqual(rc.is_pair(hand_one, board)[1], 2)
+		self.assertEqual(rc.is_pair(hand_one, board)[2][0], 11)
+		self.assertEqual(rc.is_pair(hand_two, board)[1], 11)
 
 if __name__ == '__main__':
 	unittest.main()
