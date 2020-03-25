@@ -63,8 +63,33 @@ class TestRuleCheckerMethods(unittest.TestCase):
 		self.assertTrue(rc.is_straight(hand_one, board_with_straight)[0])
 		self.assertEqual(rc.is_straight(hand_one, board_with_straight)[1], 7)
 		self.assertEqual(rc.is_straight(hand_two, board_with_straight)[1], 8)
-
-
+	
+	def test_trips(self):
+		rc = RuleChecker()
+		hand_one = [Card(2, spades), Card(10, spades)]
+		hand_two = [Card(2, spades), Card(6, spades)]
+		hand_three = [Card(2, spades), Card(3, spades)]
+		board = [Card(2, diamonds), Card(2, hearts), Card(5, diamonds), Card(4, hearts)]
+		self.assertTrue(rc.is_trips(hand_one, board)[0])
+		self.assertEqual(rc.is_trips(hand_one, board)[1], 2)
+		self.assertEqual(rc.is_trips(hand_one, board)[2][0], 10)
+		self.assertEqual(rc.is_trips(hand_one, board)[2][1], 5)
+		self.assertEqual(rc.is_trips(hand_two, board)[2][0], 6)
+		self.assertEqual(rc.is_trips(hand_two, board)[2][1], 5)
+		self.assertEqual(rc.is_trips(hand_three, board)[2][0], 5)
+		self.assertEqual(rc.is_trips(hand_three, board)[2][1], 4)
+	
+	def test_two_pair(self):
+		rc = RuleChecker()
+		hand_one = [Card(2, spades), Card(10, spades)]
+		hand_two = [Card(6, spades), Card(6, clubs)]
+		board = [Card(2, diamonds), Card(10, hearts), Card(5, diamonds), Card(5, hearts)]
+		self.assertTrue(rc.is_two_pair(hand_one, board)[0])
+		self.assertEqual(rc.is_two_pair(hand_one, board)[1], 10)
+		self.assertEqual(rc.is_two_pair(hand_one, board)[2], 5)
+		self.assertTrue(rc.is_two_pair(hand_two, board)[0])
+		self.assertEqual(rc.is_two_pair(hand_two, board)[1], 6)
+		self.assertEqual(rc.is_two_pair(hand_two, board)[2], 10)
 
 
 if __name__ == '__main__':

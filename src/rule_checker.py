@@ -3,11 +3,8 @@ from game_objects import Card
 from constants import ace, king
 
 class RuleChecker(object):
-	# analyze hand catch all method
-	# these should also return a high card
-
 	# TODO documentation
-	# this needs to return the hand as well as the relevant high card
+	# this needs to return the hand as well as the relevant high cards
 	def analyze_hand(self, hand, board):
 		is_sf, high = self.is_straight_flush(hand, board)
 		if is_sf:
@@ -43,6 +40,7 @@ class RuleChecker(object):
 			pass
 
 	def is_straight_flush(self, hand, board):
+		# Flush high card trumps straight high card 
 		is_s, high_card = self.is_straight(hand, board)
 		is_f, high_card = self.is_flush(hand, board)
 		return (is_f and is_s, high_card)
@@ -66,6 +64,7 @@ class RuleChecker(object):
 			return (False, None, None)
 
 	def is_flush(self, hand, board):
+		# If flush is completed with hand, high card is within hand, otherwise no high card
 		both = hand + board
 		suit_count = {}
 		for card in both:
@@ -85,6 +84,7 @@ class RuleChecker(object):
 		return (any(count >= 5 for count in suit_count.values()), high_card)
 
 	def is_straight(self, hand, board):
+		# High card is determined by the straight either on board or completed by hand
 		both = hand + board
 		both.sort()
 		min_len = 5
@@ -110,4 +110,44 @@ class RuleChecker(object):
 		if longest >= min_len and longest == counter:
 			high_card = both[end - 1]
 		return (longest >= min_len, high_card)
-
+	
+	def is_trips(self, hand, board):
+		# Fourth and fifth card (highest outside trips) in the hand + board is the kicker
+		both = hand + board
+		count = {}
+		for card in both:
+			rank = card.rank
+			count[rank] = count[rank] + 1 if rank in count else 1
+		rank, rank_count = max(count.items(), key=operator.itemgetter(1))
+		if rank_count == 3:
+			high_cards = []
+			both.sort(reverse=True)
+			for card in both:
+				if card != rank:
+					high_cards.append(card)
+					if len(high_cards) == 2:
+						break
+			return (True, rank, high_cards)
+		else:
+			return (False, None, None)
+		
+	def is_two_pair(self, hand, board):
+		# Highest pair is the winner, in case of tie the fifth card kicker is the winner
+		both = hand + board
+		count = {}
+		for card in both:
+			rank = card.rank
+			count[rank] = count[rank] + 1 if rank in count else 1
+		sorted_counts = sorted(count.items(), key=operator.itemgetter(1), reverse=True)
+		pairs = filter(lambda x: x[1] == 2, sorted_counts)
+		pairs = list(map(lambda x: x[0], pairs))
+		if len(pairs) >= 2:
+			rank = pairs[0] if pairs[0] > pairs[1] else pairs[1]
+			both.sort(reverse=True)
+			for card in both:
+				if card != pairs[0] and card != pairs[1]:
+					high_card = card
+					break
+			return (True, rank, high_card)
+		else:
+			return (False, None, None)
