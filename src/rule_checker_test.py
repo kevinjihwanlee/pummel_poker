@@ -4,6 +4,15 @@ from game_objects import Card
 from constants import jack, queen, king, ace, spades, hearts, diamonds, clubs, ranks, suits
 
 class TestRuleCheckerMethods(unittest.TestCase):
+	def test_analyze_hand(self):
+		rc = RuleChecker()
+		hand_one = [Card(2, spades), Card(7, spades)]
+		board = [Card(4, spades), Card(3, spades), Card(6, spades), Card(10, spades)]
+		# TODO write more tests
+		hand_two = [Card(2, diamonds), Card(13, hearts)]
+		# print(rc.analyze_hand(hand_two, board))
+		
+
 	def test_straight_flush(self):
 		rc = RuleChecker()
 		hand_one = [Card(2, spades), Card(5, spades)]

@@ -1,43 +1,47 @@
 import copy, operator
 from game_objects import Card
-from constants import ace, king
+from constants import ace, king, straight_flush, quads, full_house, flush, straight, trips, two_pair, pair, high_card
 
 class RuleChecker(object):
-	# TODO documentation
-	# hand, high card, kickers
 	def analyze_hand(self, hand, board):
+		"""Returns hand classification, rank (rank, [rank], None), relevant high card (either Card or [Card]) """
 		is_sf, high_card = self.is_straight_flush(hand, board)
 		if is_sf:
-			return('Straight flush', None, high_card)
+			return(straight_flush, None, high_card)
 
 		is_q, rank, high_card = self.is_quads(hand, board)
 		if is_q:
-			return('Four of a kind', rank, high_card)
+			return(quads, rank, high_card)
 
-		is_fh, high = self.is_full_house(hand, board)
+		is_fh, trips_rank, pair_rank = self.is_full_house(hand, board)
 		if is_fh:
-			pass
+			return(full_house, [trips_rank, pair_rank], None)
 
-		is_fl, high = self.is_flush(hand, board)
+		is_fl, high_card = self.is_flush(hand, board)
 		if is_fl:
-			pass
+			return(flush, None, high_card)
 		
-		is_str, high = self.is_straight(hand, board)
+		is_str, high_card = self.is_straight(hand, board)
 		if is_str:
-			pass
+			return(straight, None, high_card)
 
-		is_trip, high = self.is_trips(hand, board)
+		is_trip, rank, high_card = self.is_trips(hand, board)
 		if is_trip:
-			pass
+			return(trips, rank, high_card)
 
-		is_twop, high = self.is_two_pair(hand, board)
-		if is_two_p:
-			# TODO ties
-			pass
+		is_twop, higher_rank, lower_rank, high_card = self.is_two_pair(hand, board)
+		if is_twop:
+			return(two_pair, [higher_rank, lower_rank], high_card)
 
-		is_p, high = self.is_pair(hand, board)
+		is_p, rank, high_card = self.is_pair(hand, board)
 		if is_p:
-			pass
+			return(pair, rank, high_card)
+		
+		# Top five cards of the hand + board
+		both = hand + board
+		both.sort(reverse=True)
+		high_cards = list(map(lambda card: card.rank, both[0:5]))
+		return(high_card, None, high_cards)
 
 	def is_straight_flush(self, hand, board):
 		# Flush high card trumps straight high card 
@@ -161,7 +165,7 @@ class RuleChecker(object):
 					break
 			return (True, higher_rank, lower_rank, high_card)
 		else:
-			return (False, None, None)
+			return (False, None, None, None)
 	
 	def is_pair(self, hand, board):
 		# TODO DRY abstract this out to a generic pair_finder fn
